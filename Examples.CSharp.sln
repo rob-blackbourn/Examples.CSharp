@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxConsoleApp1", "JetBlack.Examples.RxConsoleApp1\JetBlack.Examples.RxConsoleApp1.csproj", "{702ED2F1-68AE-47AD-AF8F-589CB92E2DE6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.EchoClient", "JetBlack.Examples.EchoClient\JetBlack.Examples.EchoClient.csproj", "{E557370D-E910-4F89-9EF0-6C1B02BCBE85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.EchoServer", "JetBlack.Examples.EchoServer\JetBlack.Examples.EchoServer.csproj", "{F6EDA2F3-1D32-48C4-8461-BBC8D98C8B5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,5 +17,13 @@ Global
 		{702ED2F1-68AE-47AD-AF8F-589CB92E2DE6}.Debug|x86.Build.0 = Debug|x86
 		{702ED2F1-68AE-47AD-AF8F-589CB92E2DE6}.Release|x86.ActiveCfg = Release|x86
 		{702ED2F1-68AE-47AD-AF8F-589CB92E2DE6}.Release|x86.Build.0 = Release|x86
+		{E557370D-E910-4F89-9EF0-6C1B02BCBE85}.Debug|x86.ActiveCfg = Debug|x86
+		{E557370D-E910-4F89-9EF0-6C1B02BCBE85}.Debug|x86.Build.0 = Debug|x86
+		{E557370D-E910-4F89-9EF0-6C1B02BCBE85}.Release|x86.ActiveCfg = Release|x86
+		{E557370D-E910-4F89-9EF0-6C1B02BCBE85}.Release|x86.Build.0 = Release|x86
+		{F6EDA2F3-1D32-48C4-8461-BBC8D98C8B5F}.Debug|x86.ActiveCfg = Debug|x86
+		{F6EDA2F3-1D32-48C4-8461-BBC8D98C8B5F}.Debug|x86.Build.0 = Debug|x86
+		{F6EDA2F3-1D32-48C4-8461-BBC8D98C8B5F}.Release|x86.ActiveCfg = Release|x86
+		{F6EDA2F3-1D32-48C4-8461-BBC8D98C8B5F}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 EndGlobal
