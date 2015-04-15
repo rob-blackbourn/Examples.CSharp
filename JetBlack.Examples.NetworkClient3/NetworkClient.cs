@@ -22,7 +22,7 @@ namespace JetBlack.Examples.NetworkClient3
 
             await _tcpClient.ConnectAsync(hostname, port);
 
-            var subject = SubjectEx.Create<Stream, byte[], byte[]>(_tcpClient.GetStream(), async x => await ReadFrameAsync(x), IsSocketClosed, x => x == null, async (s, x) => await WriteFrameAsync(s, x), error => { }, () => { });
+            var subject = SubjectEx.Create<Stream, byte[], byte[]>(_tcpClient.GetStream(), async x => await ReadFrameAsync(x), NetworkExtensions.IsSocketClosed, x => x == null, async (s, x) => await WriteFrameAsync(s, x), error => { }, () => { });
 
             subject.Subscribe(buf => Console.WriteLine(Encoding.UTF8.GetString(buf)));
 
@@ -32,54 +32,16 @@ namespace JetBlack.Examples.NetworkClient3
             return cts.Token;
         }
 
-        private static bool IsSocketClosed(Exception error)
+        public static async Task<byte[]> ReadFrameAsync(Stream stream)
         {
-            var ioException = error as IOException;
-            var socketException = (ioException == null ? error : ioException.InnerException) as SocketException;
-            return socketException != null && IsSocketClosed(socketException.SocketErrorCode);
-        }
-
-        private static bool IsSocketClosed(SocketError socketError)
-        {
-            return socketError == SocketError.ConnectionReset || socketError == SocketError.ConnectionAborted;
-        }
-
-        public static async Task<byte[]> ReadFrameAsyncOld(Stream source)
-        {
-            var buf = await ReadBytesAsync(source, new byte[4]);
-            var length = BitConverter.ToInt32(buf, 0);
-            buf = await ReadBytesAsync(source, new byte[length]);
-            return buf;
-        }
-
-        public static async Task<byte[]> ReadFrameAsync(Stream source)
-        {
-            return await ReadBytesAsync(source, new byte[BitConverter.ToInt32(await ReadBytesAsync(source, new byte[4]), 0)]);
-        }
-
-        public static async Task<byte[]> ReadBytesAsync(Stream stream, byte[] buf)
-        {
-            var bytesRead = 0;
-            while (bytesRead < buf.Length)
-            {
-                var count = buf.Length - bytesRead;
-                var nbytes = await stream.ReadAsync(buf, bytesRead, count);
-                if (nbytes == 0)
-                    throw new EndOfStreamException();
-                bytesRead += nbytes;
-            }
-            return buf;
+            var length = BitConverter.ToInt32(await stream.ReadBytesAsync(new byte[4]), 0);
+            return await stream.ReadBytesAsync(new byte[length]);
         }
 
         public static async Task WriteFrameAsync(Stream stream, byte[] buf)
         {
-            await WriteBytesAsync(stream, BitConverter.GetBytes(buf.Length));
-            await WriteBytesAsync(stream, buf);
-        }
-
-        public static async Task WriteBytesAsync(Stream stream, byte[] buf)
-        {
-            await stream.WriteAsync(buf, 0, buf.Length);
+            await stream.WriteBytesAsync(BitConverter.GetBytes(buf.Length));
+            await stream.WriteBytesAsync(buf);
         }
 
         public void Dispose()
