@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace JetBlack.Examples.RxConsoleApp2
 {
@@ -8,7 +9,7 @@ namespace JetBlack.Examples.RxConsoleApp2
     {
         static void Main(string[] args)
         {
-            Test1();
+            Test3();
         }
 
         static void Test1()
@@ -27,6 +28,13 @@ namespace JetBlack.Examples.RxConsoleApp2
             connectable.Subscribe(x => Console.WriteLine("Second: {0}", x));
             connectable.Connect();
         }
+
+        static void Test3()
+        {
+            Console.WriteLine("Press <ENTER> to exit");
+            var observable = ObservableEx.Create(async () => await Console.In.ReadLineAsync(), string.IsNullOrEmpty);
+            observable.Subscribe(Console.WriteLine, error => Console.WriteLine("Error: {0}\r\n{1}", error.Message, error.StackTrace), () => Console.WriteLine("Complete"));
+        }
     }
 
     public static class Extensions
@@ -44,6 +52,33 @@ namespace JetBlack.Examples.RxConsoleApp2
                             break;
 
                         observer.OnNext(line);
+                    }
+
+                    observer.OnCompleted();
+                }
+                catch (Exception error)
+                {
+                    observer.OnError(error);
+                }
+            });
+        }
+    }
+
+    public static class ObservableEx
+    {
+        public static IObservable<TOut> Create<TOut>(Func<Task<TOut>> read, Func<TOut, bool> isComplete)
+        {
+            return Observable.Create<TOut>(async (observer, token) =>
+            {
+                try
+                {
+                    while (!token.IsCancellationRequested)
+                    {
+                        var value = await read();
+                        if (isComplete(value))
+                            break;
+
+                        observer.OnNext(value);
                     }
 
                     observer.OnCompleted();
