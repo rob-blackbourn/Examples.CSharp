@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.NetworkCl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.NetworkClient2", "JetBlack.Examples.NetworkClient2\JetBlack.Examples.NetworkClient2.csproj", "{6196C31A-EDA0-4672-8E3C-CE86CDDFE370}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.NetworkClient3", "JetBlack.Examples.NetworkClient3\JetBlack.Examples.NetworkClient3.csproj", "{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.NetworkServer1", "JetBlack.Examples.NetworkServer1\JetBlack.Examples.NetworkServer1.csproj", "{A3F39805-AD14-4E8A-BD4E-330641E79368}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +125,26 @@ Global
 		{6196C31A-EDA0-4672-8E3C-CE86CDDFE370}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{6196C31A-EDA0-4672-8E3C-CE86CDDFE370}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{6196C31A-EDA0-4672-8E3C-CE86CDDFE370}.Release|x86.ActiveCfg = Release|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Release|Any CPU.Build.0 = Release|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{492BAE48-33EE-4AA0-B3A3-9D1BC6814927}.Release|x86.ActiveCfg = Release|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A3F39805-AD14-4E8A-BD4E-330641E79368}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

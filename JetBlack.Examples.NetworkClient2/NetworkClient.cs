@@ -73,6 +73,7 @@ namespace JetBlack.Examples.NetworkClient2
         {
             await stream.WriteAsync(buf, 0, buf.Length);
         }
+
         public void Dispose()
         {
             _tcpClient.Close();
