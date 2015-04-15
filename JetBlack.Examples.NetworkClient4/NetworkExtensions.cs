@@ -24,7 +24,7 @@ namespace JetBlack.Examples.NetworkClient4
                     Invokeable.Chain<Exception>(_ => client.Close(), observer.OnError),
                     Invokeable.Chain(client.Close, observer.OnCompleted));
 
-            subject.Subscribe(observer);
+            subject.Subscribe(observer, token);
             observable.Subscribe(subject, token);
 
             return token;
