@@ -21,16 +21,8 @@ namespace JetBlack.Examples.NetworkClient4
                     IsSocketClosed,
                     x => x == null,
                     async (s, b) => await WriteFrameAsync(s, b, token),
-                    error =>
-                    {
-                        client.Close();
-                        observer.OnError(error);
-                    },
-                    () =>
-                    {
-                        client.Close();
-                        observer.OnCompleted();
-                    });
+                    Invokeable.Chain<Exception>(_ => client.Close(), observer.OnError),
+                    Invokeable.Chain(client.Close, observer.OnCompleted));
 
             subject.Subscribe(observer);
             observable.Subscribe(subject, token);
@@ -40,14 +32,13 @@ namespace JetBlack.Examples.NetworkClient4
 
         public static async Task<byte[]> ReadBytesAsync(this Stream stream, byte[] buf, CancellationToken token)
         {
-            var bytesRead = 0;
-            while (bytesRead < buf.Length)
+            var count = 0;
+            while (count < buf.Length)
             {
-                var count = buf.Length - bytesRead;
-                var nbytes = await stream.ReadAsync(buf, bytesRead, count, token);
-                if (nbytes == 0)
+                var bytesRead = await stream.ReadAsync(buf, count, buf.Length - count, token);
+                if (bytesRead == 0)
                     throw new EndOfStreamException();
-                bytesRead += nbytes;
+                count += bytesRead;
             }
             return buf;
         }

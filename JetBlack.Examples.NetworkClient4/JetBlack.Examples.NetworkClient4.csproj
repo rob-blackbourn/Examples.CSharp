@@ -54,6 +54,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EchoClient.cs" />
+    <Compile Include="EnumerableExtensions.cs" />
+    <Compile Include="Invokeable.cs" />
     <Compile Include="NetworkExtensions.cs" />
     <Compile Include="ObservableEx.cs" />
     <Compile Include="ObserverEx.cs" />
