@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.EchoClien
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.EchoServer2", "JetBlack.Examples.EchoServer2\JetBlack.Examples.EchoServer2.csproj", "{20B5BB67-5972-49C3-86EA-374A29648EA3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.EchoClient3", "JetBlack.Examples.EchoClient3\JetBlack.Examples.EchoClient3.csproj", "{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,16 @@ Global
 		{20B5BB67-5972-49C3-86EA-374A29648EA3}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{20B5BB67-5972-49C3-86EA-374A29648EA3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{20B5BB67-5972-49C3-86EA-374A29648EA3}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{F2AA983B-AFD5-4CD9-8E33-D1A97113CF65}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
