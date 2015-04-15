@@ -26,7 +26,7 @@ namespace JetBlack.Examples.EchoClient
                     using (var writer = new StreamWriter(stream) { AutoFlush = true })
                     {
                         string line;
-                        while ((line = Console.ReadLine()).Length != 0)
+                        while ((line = Console.ReadLine()) != null && line.Length != 0)
                         {
                             writer.WriteLine(line);
                             Console.WriteLine(reader.ReadLine());
