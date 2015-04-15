@@ -37,5 +37,25 @@ namespace JetBlack.Examples.NetworkClient2
                 onError,
                 onCompleted);
         }
+
+        public static IObserver<TIn> ToObserver<TSink, TIn>(this TSink sink, Func<TSink, TIn, Task> consumer, Func<Exception, bool> isSinkCompleted, Action<Exception> onError, Action onCompleted)
+        {
+            return Observer.Create<TIn>(async value =>
+            {
+                try
+                {
+                    await consumer(sink, value);
+                }
+                catch (Exception error)
+                {
+                    if (isSinkCompleted(error))
+                        onCompleted();
+                    else
+                        onError(error);
+                }
+            },
+                onError,
+                onCompleted);
+        }
     }
 }

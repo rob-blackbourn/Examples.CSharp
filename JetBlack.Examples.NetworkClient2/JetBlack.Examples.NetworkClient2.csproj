@@ -53,6 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EchoClient.cs" />
+    <Compile Include="NetworkClient.cs" />
+    <Compile Include="NetworkExtensions.cs" />
     <Compile Include="ObservableEx.cs" />
     <Compile Include="ObserverEx.cs" />
     <Compile Include="Program.cs" />
