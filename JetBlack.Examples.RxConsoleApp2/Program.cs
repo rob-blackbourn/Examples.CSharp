@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reactive;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -66,7 +67,7 @@ namespace JetBlack.Examples.RxConsoleApp2
 
     public static class ObservableEx
     {
-        public static IObservable<TOut> Create<TOut>(Func<Task<TOut>> read, Func<TOut, bool> isComplete)
+        public static IObservable<TOut> Create<TOut>(Func<Task<TOut>> producer, Func<TOut, bool> isComplete)
         {
             return Observable.Create<TOut>(async (observer, token) =>
             {
@@ -74,7 +75,7 @@ namespace JetBlack.Examples.RxConsoleApp2
                 {
                     while (!token.IsCancellationRequested)
                     {
-                        var value = await read();
+                        var value = await producer();
                         if (isComplete(value))
                             break;
 
@@ -88,6 +89,11 @@ namespace JetBlack.Examples.RxConsoleApp2
                     observer.OnError(error);
                 }
             });
+        }
+
+        public static IObserver<TIn> Create<TIn>(Func<TIn, Task> onNext, Action<Exception> onError, Action onCompleted)
+        {
+            return Observer.Create<TIn>(async value => await onNext(value), onError, onCompleted);
         }
     }
 }
