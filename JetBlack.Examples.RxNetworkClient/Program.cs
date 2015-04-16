@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
-using System.IO;
 using System.Net.Sockets;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,8 +26,14 @@ namespace JetBlack.Examples.RxNetworkClient
 
             var cts = new CancellationTokenSource();
 
-            var subject = NetworkExtensions.ToTcpClientSubject(hostname, port, cts.Token);
+            var client = new TcpClient(hostname, port);
+            var subject = client.GetStream().ToFrameSubject(_ => false, cts.Token);
 
+            EchoClient(subject, cts);
+        }
+
+        static void EchoClient(ISubject<byte[], byte[]> subject, CancellationTokenSource cts)
+        {
             subject.Subscribe(
                 buf => Console.WriteLine("OnNext: {0}", Encoding.UTF8.GetString(buf)),
                 error =>

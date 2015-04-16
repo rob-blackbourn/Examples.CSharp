@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
-using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,15 +9,14 @@ namespace JetBlack.Examples.RxNetwork
 {
     public static class NetworkExtensions
     {
-        public static async void Listen(this TcpListener tcpListener, IScheduler scheduler, CancellationToken token)
+        public static async void Listen(this TcpListener tcpListener, Action<ISubject<byte[],byte[]>, CancellationToken> onClient, CancellationToken token)
         {
             tcpListener.Start();
 
             while (!token.IsCancellationRequested)
             {
                 var client = await tcpListener.AcceptTcpClientAsync();
-                var subject = client.ToBytesSubject(token);
-                subject.SubscribeOn(scheduler).Subscribe(subject, token);
+                onClient(client.GetStream().ToBytesSubject(token), token);
             }
 
             tcpListener.Stop();
@@ -30,54 +25,48 @@ namespace JetBlack.Examples.RxNetwork
         public static ISubject<byte[], byte[]> ToTcpClientSubject(string hostname, int port, CancellationToken token)
         {
             var client = new TcpClient(hostname, port);
-            return ToFrameSubject(client, _ => false, token);
+            return client.ToFrameSubject(_ => false, token);
         }
 
         public static async Task<ISubject<byte[], byte[]>> ToTcpClientSubjectAsync(string hostname, int port, CancellationToken token)
         {
             var client = new TcpClient();
             await client.ConnectAsync(hostname, port);
-            return ToFrameSubject(client, _ => false, token);
+            return client.ToFrameSubject(_ => false, token);
         }
 
-        public static ISubject<byte[], byte[]> ToFrameSubject(this TcpClient client, Func<Exception,bool> isCompleted, CancellationToken token)
+        public static ISubject<byte[], byte[]> ToFrameSubject(this TcpClient client, Func<Exception, bool> isCompleted, CancellationToken token)
+        {
+            return client.GetStream().ToFrameSubject(isCompleted, token);
+        }
+
+        public static ISubject<byte[], byte[]> ToFrameSubject(this Stream stream, Func<Exception, bool> isCompleted, CancellationToken token)
         {
             return
-                client.GetStream().ToSubject<Stream, byte[], byte[]>(
+                stream.ToSubject<Stream, byte[], byte[]>(
                     ReadFrameAsync,
                     isCompleted,
                     buf => buf == null,
-                    async (stream, buf) => await WriteFrameAsync(stream, buf, token),
-                    _ =>
-                    {
-                        Debug.Print("Here");
-                        client.Close();
-                    },
-                    () =>
-                    {
-                        Debug.Print("Here");
-                        client.Close();
-                    });
+                    async (s, buf) => await WriteFrameAsync(s, buf, token),
+                    _ => stream.Close(),
+                    stream.Close);
         }
 
         public static ISubject<byte[], byte[]> ToBytesSubject(this TcpClient client, CancellationToken token)
         {
+            return client.GetStream().ToBytesSubject(token);
+        }
+
+        public static ISubject<byte[], byte[]> ToBytesSubject(this Stream stream, CancellationToken token)
+        {
             return
-                client.GetStream().ToSubject<Stream, byte[], byte[]>(
+                stream.ToSubject<Stream, byte[], byte[]>(
                     ReadBytesAvailableAsync,
                     IsSocketClosed,
                     buf => buf == null,
-                    async (stream, buf) => await WriteBytesAsync(stream, buf, token),
-                    _ =>
-                    {
-                        Debug.Print("Here");
-                        client.Close();
-                    },
-                    () =>
-                    {
-                        Debug.Print("Here");
-                        client.Close();
-                    });
+                    async (s, buf) => await WriteBytesAsync(s, buf, token),
+                    _ => stream.Close(),
+                    stream.Close);
         }
 
         public static async Task<byte[]> ReadFrameAsync(Stream stream, CancellationToken token)

@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBlack.Examples.RxNetwork;
@@ -13,7 +14,7 @@ namespace JetBlack.Examples.RxNetworkServer
         public static void Main(string[] args)
         {
             string[] splitArgs = null;
-            if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
+            if (args.Length != 1 || (splitArgs = args[0].Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
                 Console.WriteLine("usage: NetworkServer <hostname>:<port>");
                 Console.WriteLine("example:");
@@ -26,7 +27,12 @@ namespace JetBlack.Examples.RxNetworkServer
 
             var cts = new CancellationTokenSource();
 
-            Task.Run(() => new TcpListener(address, port).Listen(TaskPoolScheduler.Default, cts.Token), cts.Token);
+            Task.Run(() =>
+                new TcpListener(address, port)
+                    .Listen(
+                        (subject, token) => subject.SubscribeOn(TaskPoolScheduler.Default).Subscribe(subject, token),
+                        cts.Token),
+                cts.Token);
 
             Console.WriteLine("Press <ENTER> to quit");
             Console.ReadLine();
