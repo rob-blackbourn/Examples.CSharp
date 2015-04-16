@@ -1,17 +1,20 @@
 ﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBlack.Examples.RxNetwork;
 
 namespace JetBlack.Examples.RxNetworkClient
 {
     class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             string[] splitArgs = null;
-            if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
+            if (args.Length != 1 || (splitArgs = args[0].Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
                 Console.WriteLine("usage: EchoClient <hostname>:<port>");
                 Console.WriteLine("example:");
@@ -19,21 +22,34 @@ namespace JetBlack.Examples.RxNetworkClient
                 Environment.Exit(-1);
             }
 
-            var address = splitArgs[0];
+            var hostname = splitArgs[0];
             var port = int.Parse(splitArgs[1]);
 
             var cts = new CancellationTokenSource();
 
-            var client = new TcpClient(address, port);
-            var subject = client.ToFrameSubject(cts.Token);
+            var subject = NetworkExtensions.ToTcpClientSubject(hostname, port, cts.Token);
 
             subject.Subscribe(
                 buf => Console.WriteLine("OnNext: {0}", Encoding.UTF8.GetString(buf)),
-                error => Console.WriteLine("OnError: {0}\r\n{1}", error.Message, error.StackTrace),
+                error =>
+                {
+                    Console.WriteLine("OnError: {0}\r\n{1}", error.Message, error.StackTrace);
+                    cts.Cancel();
+                },
                 () => Console.WriteLine("OnCompleted"), cts.Token);
 
-            for (var line = Console.ReadLine(); !string.IsNullOrEmpty(line); line = Console.ReadLine())
-                subject.OnNext(Encoding.UTF8.GetBytes(line));
+            Task.Factory.StartNew(() =>
+            {
+                do
+                {
+                    var line = Console.In.ReadLine();
+                    if (string.IsNullOrEmpty(line))
+                        break;
+                    subject.OnNext(Encoding.UTF8.GetBytes(line));
+                } while (!cts.Token.IsCancellationRequested);
+            }, cts.Token);
+
+            cts.Token.WaitHandle.WaitOne();
         }
     }
 }

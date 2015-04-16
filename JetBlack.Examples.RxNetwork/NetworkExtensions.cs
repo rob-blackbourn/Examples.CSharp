@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,12 +27,25 @@ namespace JetBlack.Examples.RxNetwork
             tcpListener.Stop();
         }
 
-        public static ISubject<byte[], byte[]> ToFrameSubject(this TcpClient client, CancellationToken token)
+        public static ISubject<byte[], byte[]> ToTcpClientSubject(string hostname, int port, CancellationToken token)
+        {
+            var client = new TcpClient(hostname, port);
+            return ToFrameSubject(client, _ => false, token);
+        }
+
+        public static async Task<ISubject<byte[], byte[]>> ToTcpClientSubjectAsync(string hostname, int port, CancellationToken token)
+        {
+            var client = new TcpClient();
+            await client.ConnectAsync(hostname, port);
+            return ToFrameSubject(client, _ => false, token);
+        }
+
+        public static ISubject<byte[], byte[]> ToFrameSubject(this TcpClient client, Func<Exception,bool> isCompleted, CancellationToken token)
         {
             return
                 client.GetStream().ToSubject<Stream, byte[], byte[]>(
                     ReadFrameAsync,
-                    IsSocketClosed,
+                    isCompleted,
                     buf => buf == null,
                     async (stream, buf) => await WriteFrameAsync(stream, buf, token),
                     _ =>
