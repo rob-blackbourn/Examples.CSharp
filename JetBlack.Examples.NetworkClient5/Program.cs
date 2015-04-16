@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 
 namespace JetBlack.Examples.NetworkClient5
@@ -21,8 +23,14 @@ namespace JetBlack.Examples.NetworkClient5
 
             var cts = new CancellationTokenSource();
 
-            var client = new EchoClient();
-            client.Dispatch(address, port, cts.Token).Wait(cts.Token);
+            var client = new TcpClient();
+            client.Connect(address, port);
+            var subject = client.ToSubject(cts.Token);
+
+            subject.Subscribe(buf => Console.WriteLine(Encoding.UTF8.GetString(buf)), cts.Token);
+
+            for (var line = Console.ReadLine(); !string.IsNullOrEmpty(line); line = Console.ReadLine())
+                subject.OnNext(Encoding.UTF8.GetBytes(line));
         }
     }
 }
