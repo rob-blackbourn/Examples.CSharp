@@ -2,8 +2,9 @@
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using JetBlack.Examples.RxNetwork;
 
-namespace JetBlack.Examples.NetworkClient5
+namespace JetBlack.Examples.RxNetworkClient
 {
     class Program
     {
@@ -24,7 +25,7 @@ namespace JetBlack.Examples.NetworkClient5
             var cts = new CancellationTokenSource();
 
             var client = new TcpClient(address, port);
-            var subject = client.ToSubject(cts.Token);
+            var subject = client.ToFrameSubject(cts.Token);
 
             subject.Subscribe(
                 buf => Console.WriteLine("OnNext: {0}", Encoding.UTF8.GetString(buf)),
