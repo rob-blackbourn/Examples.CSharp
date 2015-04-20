@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Sockets;
 using System.Reactive.Subjects;
+using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,17 +26,21 @@ namespace JetBlack.Examples.RxNetworkClient
             var port = int.Parse(splitArgs[1]);
 
             var cts = new CancellationTokenSource();
-
+            var bufferManager = BufferManager.CreateBufferManager(2 << 32, 2 << 16);
             var client = new TcpClient(hostname, port);
-            var subject = client.GetStream().ToFrameSubject(_ => false, cts.Token);
+            var subject = client.GetStream().ToFrameSubject(bufferManager, _ => false, cts.Token);
 
-            EchoClient(subject, cts);
+            EchoClient(subject, bufferManager, cts);
         }
 
-        static void EchoClient(ISubject<byte[], byte[]> subject, CancellationTokenSource cts)
+        static void EchoClient(ISubject<ManagedBuffer, ManagedBuffer> subject, BufferManager bufferManager, CancellationTokenSource cts)
         {
             subject.Subscribe(
-                buf => Console.WriteLine("OnNext: {0}", Encoding.UTF8.GetString(buf)),
+                frameContent =>
+                {
+                    Console.WriteLine("OnNext: {0}", Encoding.UTF8.GetString(frameContent.Buffer, 0, frameContent.Length));
+                    frameContent.Dispose();
+                },
                 error =>
                 {
                     Console.WriteLine("OnError: {0}\r\n{1}", error.Message, error.StackTrace);
@@ -53,7 +58,13 @@ namespace JetBlack.Examples.RxNetworkClient
                         cts.Cancel();
                         break;
                     }
-                    subject.OnNext(Encoding.UTF8.GetBytes(line));
+
+                    var contentLength = Encoding.UTF8.GetByteCount(line);
+                    var contentBuffer = bufferManager.TakeBuffer(contentLength);
+                    Encoding.UTF8.GetBytes(line, 0, line.Length, contentBuffer, 0);
+                    var content = new ManagedBuffer(contentBuffer, contentLength, bufferManager);
+
+                    subject.OnNext(content);
                 } while (!cts.Token.IsCancellationRequested);
             }, cts.Token);
 

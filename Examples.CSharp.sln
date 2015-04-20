@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxNetwork
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxNetworkServer", "JetBlack.Examples.RxNetworkServer\JetBlack.Examples.RxNetworkServer.csproj", "{1D9FAC72-EB7A-40E8-AB9B-7CC3C04A3655}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxNetwork.Test", "JetBlack.Examples.RxNetwork.Test\JetBlack.Examples.RxNetwork.Test.csproj", "{CEB3ED3C-3DC2-4186-A10B-6940F3260936}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -217,6 +219,16 @@ Global
 		{1D9FAC72-EB7A-40E8-AB9B-7CC3C04A3655}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1D9FAC72-EB7A-40E8-AB9B-7CC3C04A3655}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1D9FAC72-EB7A-40E8-AB9B-7CC3C04A3655}.Release|x86.ActiveCfg = Release|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{CEB3ED3C-3DC2-4186-A10B-6940F3260936}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

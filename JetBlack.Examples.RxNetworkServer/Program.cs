@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.ServiceModel.Channels;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBlack.Examples.RxNetwork;
@@ -26,10 +27,13 @@ namespace JetBlack.Examples.RxNetworkServer
             var port = int.Parse(splitArgs[1]);
 
             var cts = new CancellationTokenSource();
+            var bufferManager = BufferManager.CreateBufferManager(2 << 32, 2 << 16);
 
             Task.Run(() =>
                 new TcpListener(address, port)
                     .Listen(
+                        bufferManager,
+                        1024,
                         (subject, token) => subject.SubscribeOn(TaskPoolScheduler.Default).Subscribe(subject, token),
                         cts.Token),
                 cts.Token);
