@@ -44,8 +44,8 @@ namespace JetBlack.Examples.RxNetwork
         public async Task WriteFrameAsync(Stream stream, CancellationToken token)
         {
             var headerBuffer = BitConverter.GetBytes(Length);
-            await WriteBytesAsync(stream, headerBuffer, headerBuffer.Length, token);
-            await WriteBytesAsync(stream, Buffer, Length, token);
+            await stream.WriteAsync(headerBuffer, 0, headerBuffer.Length, token);
+            await stream.WriteAsync(Buffer, 0, Length, token);
         }
 
         public static async Task<ManagedBuffer> ReadBytesAvailableAsync(Stream source, BufferManager bufferManager, int bufferSize, CancellationToken token)
@@ -59,7 +59,7 @@ namespace JetBlack.Examples.RxNetwork
 
         public async Task WriteBytesAsync(Stream stream, CancellationToken token)
         {
-            await WriteBytesAsync(stream, Buffer, Length, token);
+            await stream.WriteAsync(Buffer, 0, Length, token);
         }
 
         private static async Task<byte[]> ReadBytesCompletelyAsync(Stream stream, byte[] buf, int length, CancellationToken token)
@@ -75,11 +75,6 @@ namespace JetBlack.Examples.RxNetwork
                 offset += read;
             }
             return buf;
-        }
-
-        private static async Task WriteBytesAsync(Stream stream, byte[] buf, int length, CancellationToken token)
-        {
-            await stream.WriteAsync(buf, 0, length, token);
         }
     }
 }
