@@ -49,7 +49,10 @@ namespace JetBlack.Examples.RxNetworkClient
                 {
                     var line = Console.In.ReadLine();
                     if (string.IsNullOrEmpty(line))
+                    {
+                        cts.Cancel();
                         break;
+                    }
                     subject.OnNext(Encoding.UTF8.GetBytes(line));
                 } while (!cts.Token.IsCancellationRequested);
             }, cts.Token);
