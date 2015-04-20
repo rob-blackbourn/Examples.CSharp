@@ -36,8 +36,8 @@ namespace JetBlack.Examples.RxNetwork
 
         public static async Task<ManagedBuffer> ReadFrameAsync(Stream stream, BufferManager bufferManager, CancellationToken token)
         {
-            var length = BitConverter.ToInt32(await ReadBytesCompletelyAsync(stream, new byte[HeaderLength], HeaderLength, token), 0);
-            var buffer = await ReadBytesCompletelyAsync(stream, bufferManager.TakeBuffer(length), length, token);
+            var length = BitConverter.ToInt32(await stream.ReadBytesCompletelyAsync(new byte[HeaderLength], HeaderLength, token), 0);
+            var buffer = await stream.ReadBytesCompletelyAsync(bufferManager.TakeBuffer(length), length, token);
             return new ManagedBuffer(buffer, length, bufferManager);
         }
 
@@ -60,21 +60,6 @@ namespace JetBlack.Examples.RxNetwork
         public async Task WriteBytesAsync(Stream stream, CancellationToken token)
         {
             await stream.WriteAsync(Buffer, 0, Length, token);
-        }
-
-        private static async Task<byte[]> ReadBytesCompletelyAsync(Stream stream, byte[] buf, int length, CancellationToken token)
-        {
-            var offset = 0;
-            while (offset < length)
-            {
-                var remaining = length - offset;
-                var read = await stream.ReadAsync(buf, offset, remaining, token);
-                if (read == 0)
-                    throw new EndOfStreamException();
-
-                offset += read;
-            }
-            return buf;
         }
     }
 }
