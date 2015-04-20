@@ -47,12 +47,12 @@ namespace JetBlack.Examples.RxNetwork
         {
             return
                 stream.ToSubject<Stream, ManagedBuffer, ManagedBuffer>(
-                    (s,t) => ManagedBuffer.ReadBytesAvailableAsync(s, bufferManager, bufferSize, t),
+                    (s,t) => ManagedBuffer.ReadAsync(s, bufferManager, bufferSize, t),
                     IsSocketClosed,
                     buf => buf == null,
                     async (s, content) =>
                     {
-                        await content.WriteBytesAsync(s, token);
+                        await content.WriteAsync(s, token);
                         content.Dispose();
                     },
                     _ => stream.Close(),

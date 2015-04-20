@@ -48,14 +48,14 @@ namespace JetBlack.Examples.RxNetwork
             await stream.WriteAsync(Buffer, 0, Length, token);
         }
 
-        public static async Task<ManagedBuffer> ReadBytesAvailableAsync(Stream source, BufferManager bufferManager, int bufferSize, CancellationToken token)
+        public static async Task<ManagedBuffer> ReadAsync(Stream source, BufferManager bufferManager, int bufferSize, CancellationToken token)
         {
             var buffer = bufferManager.TakeBuffer(bufferSize);
             var bytesRead = await source.ReadAsync(buffer, 0, bufferSize, token);
             return bytesRead == 0 ? null : new ManagedBuffer(buffer, bytesRead, bufferManager);
         }
 
-        public async Task WriteBytesAsync(Stream stream, CancellationToken token)
+        public async Task WriteAsync(Stream stream, CancellationToken token)
         {
             await stream.WriteAsync(Buffer, 0, Length, token);
         }
