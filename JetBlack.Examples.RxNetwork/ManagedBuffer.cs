@@ -52,9 +52,7 @@ namespace JetBlack.Examples.RxNetwork
         {
             var buffer = bufferManager.TakeBuffer(bufferSize);
             var bytesRead = await source.ReadAsync(buffer, 0, bufferSize, token);
-            if (bytesRead == 0)
-                return null;
-            return new ManagedBuffer(buffer, bytesRead, bufferManager);
+            return bytesRead == 0 ? null : new ManagedBuffer(buffer, bytesRead, bufferManager);
         }
 
         public async Task WriteBytesAsync(Stream stream, CancellationToken token)
