@@ -30,11 +30,6 @@ namespace JetBlack.Examples.RxNetworkClient
             var client = new TcpClient(hostname, port);
             var subject = client.GetStream().ToFrameSubject(bufferManager, _ => false, cts.Token);
 
-            EchoClient(subject, bufferManager, cts);
-        }
-
-        static void EchoClient(ISubject<ManagedBuffer, ManagedBuffer> subject, BufferManager bufferManager, CancellationTokenSource cts)
-        {
             subject.Subscribe(
                 frameContent =>
                 {
