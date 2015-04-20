@@ -38,11 +38,6 @@ namespace JetBlack.Examples.RxNetwork
                     stream.Close);
         }
 
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToBytesSubject(this TcpClient client, BufferManager bufferManager, int bufferSize, CancellationToken token)
-        {
-            return client.GetStream().ToBytesSubject(bufferManager, bufferSize, token);
-        }
-
         public static ISubject<ManagedBuffer, ManagedBuffer> ToBytesSubject(this Stream stream, BufferManager bufferManager, int bufferSize, CancellationToken token)
         {
             return
