@@ -59,12 +59,8 @@ namespace JetBlack.Examples.RxNetworkClient
                         break;
                     }
 
-                    var contentLength = Encoding.UTF8.GetByteCount(line);
-                    var contentBuffer = bufferManager.TakeBuffer(contentLength);
-                    Encoding.UTF8.GetBytes(line, 0, line.Length, contentBuffer, 0);
-                    var content = new ManagedBuffer(contentBuffer, contentLength, bufferManager);
+                    subject.OnNext(line.ToManagedBuffer(bufferManager));
 
-                    subject.OnNext(content);
                 } while (!cts.Token.IsCancellationRequested);
             }, cts.Token);
 

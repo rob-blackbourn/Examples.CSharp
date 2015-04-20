@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ManagedBuffer.cs" />
+    <Compile Include="ManagedBufferExtensions.cs" />
     <Compile Include="NetworkExtensions.cs" />
     <Compile Include="ObservableEx.cs" />
     <Compile Include="ObserverEx.cs" />
