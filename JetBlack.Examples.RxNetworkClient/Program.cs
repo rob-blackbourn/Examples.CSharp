@@ -25,8 +25,11 @@ namespace JetBlack.Examples.RxNetworkClient
             var hostname = splitArgs[0];
             var port = int.Parse(splitArgs[1]);
 
+            const int maxFrameSize = 2 << 16;
+            const int maxPendingFrames = 16;
+
             var cts = new CancellationTokenSource();
-            var bufferManager = BufferManager.CreateBufferManager(2 << 32, 2 << 16);
+            var bufferManager = BufferManager.CreateBufferManager(maxPendingFrames * maxFrameSize, maxFrameSize);
             var client = new TcpClient(hostname, port);
             var subject = client.GetStream().ToFrameSubject(bufferManager, _ => false, cts.Token);
 

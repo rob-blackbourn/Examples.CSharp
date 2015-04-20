@@ -27,13 +27,15 @@ namespace JetBlack.Examples.RxNetworkServer
             var port = int.Parse(splitArgs[1]);
 
             var cts = new CancellationTokenSource();
-            var bufferManager = BufferManager.CreateBufferManager(2 << 32, 2 << 16);
+            const int blockSize = 2 << 8;
+            const int maxClients = 32;
+            var bufferManager = BufferManager.CreateBufferManager(blockSize * maxClients, blockSize);
 
             Task.Run(() =>
                 new TcpListener(address, port)
                     .Listen(
                         bufferManager,
-                        1024,
+                        blockSize,
                         (subject, token) => subject.SubscribeOn(TaskPoolScheduler.Default).Subscribe(subject, token),
                         cts.Token),
                 cts.Token);
