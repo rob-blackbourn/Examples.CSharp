@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JetBlack.Examples.RxNetwork\JetBlack.Examples.RxNetwork.csproj">
-      <Project>{e96e2023-9dda-4411-a07f-73eb3d477a31}</Project>
+      <Project>{E96E2023-9DDA-4411-A07F-73EB3D477A31}</Project>
       <Name>JetBlack.Examples.RxNetwork</Name>
     </ProjectReference>
   </ItemGroup>
