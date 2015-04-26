@@ -1,13 +1,19 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace JetBlack.Examples.SocketServer2
+namespace JetBlack.Examples.SocketClient2
 {
     public static class SocketExtensions
     {
         public static async Task<Socket> AcceptAsync(this Socket socket)
         {
             return await Task<Socket>.Factory.FromAsync(socket.BeginAccept, socket.EndAccept, null);
+        }
+
+        public static async Task ConnectAsync(this Socket socket, string host, int port)
+        {
+            await Task.Factory.FromAsync((callback, state) => socket.BeginConnect(host, port, callback, state), ias => socket.EndConnect(ias), null);
         }
 
         public static async Task<int> SendAsync(this Socket socket, byte[] buffer, int offset, int size, SocketFlags flags)
