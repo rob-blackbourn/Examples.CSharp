@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.SocketSer
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.SocketClient2", "JetBlack.Examples.SocketClient2\JetBlack.Examples.SocketClient2.csproj", "{56B6BCF2-57D1-459B-AED6-973CF74BC10F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.SocketClient3", "JetBlack.Examples.SocketClient3\JetBlack.Examples.SocketClient3.csproj", "{B5FA4934-26B9-47F4-984F-EE8BC389352A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -141,6 +143,10 @@ Global
 		{56B6BCF2-57D1-459B-AED6-973CF74BC10F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56B6BCF2-57D1-459B-AED6-973CF74BC10F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56B6BCF2-57D1-459B-AED6-973CF74BC10F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5FA4934-26B9-47F4-984F-EE8BC389352A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5FA4934-26B9-47F4-984F-EE8BC389352A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5FA4934-26B9-47F4-984F-EE8BC389352A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5FA4934-26B9-47F4-984F-EE8BC389352A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
