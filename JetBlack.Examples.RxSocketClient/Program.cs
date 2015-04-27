@@ -5,15 +5,16 @@ using System.Reactive.Linq;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
+using JetBlack.Examples.RxSocket;
 
-namespace JetBlack.Examples.SocketClient3
+namespace JetBlack.Examples.RxSocketClient
 {
     internal class Program
     {
         public static void Main(string[] args)
         {
             string[] splitArgs = null;
-            if (args.Length != 1 || (splitArgs = args[0].Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
+            if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
                 Console.WriteLine("usage: EchoClient <hostname>:<port>");
                 Console.WriteLine("example:");
@@ -35,7 +36,7 @@ namespace JetBlack.Examples.SocketClient3
                 .Subscribe(
                     managedBuffer =>
                     {
-                        Console.WriteLine("Read: " + Encoding.UTF8.GetString(managedBuffer.Buffer, 0, managedBuffer.Length));
+                        Console.WriteLine("Read: " + Encoding.UTF8.GetString(managedBuffer.Bytes, 0, managedBuffer.Length));
                         managedBuffer.Dispose();
                     },
                     error => Console.WriteLine("Error: " + error.Message),
