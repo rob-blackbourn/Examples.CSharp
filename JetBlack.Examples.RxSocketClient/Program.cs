@@ -42,8 +42,7 @@ namespace JetBlack.Examples.RxSocketClient
                         error => Console.WriteLine("Error: " + error.Message),
                         () => Console.WriteLine("OnCompleted: FrameReceiver"));
 
-            var lineReader = Console.In.ToLineObservable();
-            lineReader
+            Console.In.ToLineObservable()
                 .Subscribe(
                     line =>
                     {
