@@ -26,7 +26,7 @@ namespace JetBlack.Examples.SocketClient3
             return await Task<int>.Factory.FromAsync((callback, state) => socket.BeginReceive(buffer, offset, count, socketFlags, callback, state), ias => socket.EndReceive(ias), null);
         }
 
-        public static async Task<byte[]> ReceiveCompletelyAsync(this Socket socket, byte[] buffer, int count, SocketFlags socketFlags, CancellationToken token)
+        public static async Task<int> ReceiveCompletelyAsync(this Socket socket, byte[] buffer, int count, SocketFlags socketFlags, CancellationToken token)
         {
             var received = 0;
             while (received < count)
@@ -35,14 +35,14 @@ namespace JetBlack.Examples.SocketClient3
 
                 var bytes = await socket.ReceiveAsync(buffer, received, count - received, socketFlags);
                 if (bytes == 0)
-                    throw new SocketException((int)SocketError.NoData);
+                    return received;
                 received += bytes;
             }
 
-            return buffer;
+            return received;
         }
 
-        public static async Task SendCompletelyAsync(this Socket socket, byte[] buffer, int count, SocketFlags socketFlags, CancellationToken token)
+        public static async Task<int> SendCompletelyAsync(this Socket socket, byte[] buffer, int count, SocketFlags socketFlags, CancellationToken token)
         {
             var sent = 0;
             while (sent < count)
@@ -51,9 +51,10 @@ namespace JetBlack.Examples.SocketClient3
 
                 var bytes = await socket.SendAsync(buffer, sent, count - sent, socketFlags);
                 if (bytes == 0)
-                    throw new SocketException((int)SocketError.NoData);
+                    break;
                 sent += bytes;
             }
+            return sent;
         }
     }
 }

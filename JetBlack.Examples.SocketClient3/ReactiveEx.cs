@@ -44,8 +44,14 @@ namespace JetBlack.Examples.SocketClient3
                 {
                     while (!token.IsCancellationRequested)
                     {
-                        var length = BitConverter.ToInt32(await socket.ReceiveCompletelyAsync(headerBuffer, headerBuffer.Length, socketFlags, token), 0);
-                        var buffer = await socket.ReceiveCompletelyAsync(bufferManager.TakeBuffer(length), length, socketFlags, token);
+                        if (await socket.ReceiveCompletelyAsync(headerBuffer, headerBuffer.Length, socketFlags, token) != headerBuffer.Length)
+                            break;
+                        var length = BitConverter.ToInt32(headerBuffer, 0);
+
+                        var buffer = bufferManager.TakeBuffer(length);
+                        if (await socket.ReceiveCompletelyAsync(buffer, length, socketFlags, token) != length)
+                            break;
+
                         observer.OnNext(new ManagedBuffer(buffer, length, bufferManager));
                     }
 

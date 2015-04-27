@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.ServiceModel.Channels;
@@ -8,12 +9,12 @@ using System.Threading;
 
 namespace JetBlack.Examples.SocketClient3
 {
-    class Program
+    internal class Program
     {
         public static void Main(string[] args)
         {
             string[] splitArgs = null;
-            if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
+            if (args.Length != 1 || (splitArgs = args[0].Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
                 Console.WriteLine("usage: EchoClient <hostname>:<port>");
                 Console.WriteLine("example:");
@@ -32,20 +33,27 @@ namespace JetBlack.Examples.SocketClient3
 
             var receiverDisposable = socket.ToFrameReceiver(SocketFlags.None, bufferManager)
                 .SubscribeOn(TaskPoolScheduler.Default)
-                .Subscribe(x =>
-                {
-                    Console.WriteLine("Read: " + Encoding.UTF8.GetString(x.Buffer, 0, x.Length));
-                    x.Dispose();
-                },
-                error => Console.WriteLine("Error: " + error.Message));
+                .Subscribe(
+                    managedBuffer =>
+                    {
+                        Console.WriteLine("Read: " + Encoding.UTF8.GetString(managedBuffer.Buffer, 0, managedBuffer.Length));
+                        managedBuffer.Dispose();
+                    },
+                    error => Console.WriteLine("Error: " + error.Message),
+                    () => Console.WriteLine("OnCompleted: FrameReceiver"));
 
             var sender = socket.ToFrameSender(SocketFlags.None, cts.Token);
 
-            for (var line = Console.ReadLine(); !cts.IsCancellationRequested && !string.IsNullOrEmpty(line); line = Console.ReadLine())
-            {
-                var writeBuffer = Encoding.UTF8.GetBytes(line);
-                sender.OnNext(new ManagedBuffer(writeBuffer, writeBuffer.Length, null));
-            }
+            var lineReader = Console.In.ToLineObservable();
+            lineReader
+                .Subscribe(
+                    line =>
+                    {
+                        var writeBuffer = Encoding.UTF8.GetBytes(line);
+                        sender.OnNext(new ManagedBuffer(writeBuffer, writeBuffer.Length, null));
+                    },
+                    error => Console.WriteLine("Error: " + error.Message),
+                    () => Console.WriteLine("OnCompleted: LineReader"));
 
             receiverDisposable.Dispose();
 
