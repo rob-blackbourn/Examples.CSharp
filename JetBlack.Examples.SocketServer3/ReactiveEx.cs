@@ -2,13 +2,19 @@
 using System.Net.Sockets;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.ServiceModel.Channels;
 using System.Threading;
 
-namespace JetBlack.Examples.SocketClient3
+namespace JetBlack.Examples.SocketServer3
 {
     public static class ReactiveEx
     {
+        public static ISubject<ArraySegment<byte>, ArraySegment<byte>> ToSenderReceiver(this Socket socket, int size, SocketFlags socketFlags)
+        {
+            return Subject.Create(socket.ToSender(size, socketFlags), socket.ToReceiver(size, socketFlags));
+        }
+
         public static IObservable<ArraySegment<byte>> ToReceiver(this Socket socket, int size, SocketFlags socketFlags)
         {
             return Observable.Create<ArraySegment<byte>>(async (observer, token) =>

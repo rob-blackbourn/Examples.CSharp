@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace JetBlack.Examples.SocketClient3
+namespace JetBlack.Examples.SocketServer3
 {
     public static class SocketExtensions
     {
