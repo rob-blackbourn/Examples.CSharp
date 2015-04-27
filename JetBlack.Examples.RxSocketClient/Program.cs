@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -14,7 +15,7 @@ namespace JetBlack.Examples.RxSocketClient
         public static void Main(string[] args)
         {
             string[] splitArgs = null;
-            if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
+            if (args.Length != 1 || (splitArgs = args[0].Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
                 Console.WriteLine("usage: EchoClient <hostname>:<port>");
                 Console.WriteLine("example:");
@@ -22,27 +23,24 @@ namespace JetBlack.Examples.RxSocketClient
                 Environment.Exit(-1);
             }
 
-            var host = splitArgs[0];
-            var port = int.Parse(splitArgs[1]);
+            var endpoint = new IPEndPoint(IPAddress.Parse(splitArgs[0]), int.Parse(splitArgs[1]));
 
             var cts = new CancellationTokenSource();
             var bufferManager = BufferManager.CreateBufferManager(2 << 16, 2 << 8);
 
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(host, port);
+            var frameClientSubject = endpoint.ToFrameClientSubject(SocketFlags.None, bufferManager, cts.Token);
 
-            var receiverDisposable = socket.ToFrameReceiver(SocketFlags.None, bufferManager)
-                .SubscribeOn(TaskPoolScheduler.Default)
-                .Subscribe(
-                    managedBuffer =>
-                    {
-                        Console.WriteLine("Read: " + Encoding.UTF8.GetString(managedBuffer.Bytes, 0, managedBuffer.Length));
-                        managedBuffer.Dispose();
-                    },
-                    error => Console.WriteLine("Error: " + error.Message),
-                    () => Console.WriteLine("OnCompleted: FrameReceiver"));
-
-            var sender = socket.ToFrameSender(SocketFlags.None, cts.Token);
+            var observerDisposable =
+                frameClientSubject
+                    .SubscribeOn(TaskPoolScheduler.Default)
+                    .Subscribe(
+                        managedBuffer =>
+                        {
+                            Console.WriteLine("Read: " + Encoding.UTF8.GetString(managedBuffer.Bytes, 0, managedBuffer.Length));
+                            managedBuffer.Dispose();
+                        },
+                        error => Console.WriteLine("Error: " + error.Message),
+                        () => Console.WriteLine("OnCompleted: FrameReceiver"));
 
             var lineReader = Console.In.ToLineObservable();
             lineReader
@@ -50,12 +48,12 @@ namespace JetBlack.Examples.RxSocketClient
                     line =>
                     {
                         var writeBuffer = Encoding.UTF8.GetBytes(line);
-                        sender.OnNext(new ManagedBuffer(writeBuffer, writeBuffer.Length, null));
+                        frameClientSubject.OnNext(new ManagedBuffer(writeBuffer, writeBuffer.Length, null));
                     },
                     error => Console.WriteLine("Error: " + error.Message),
                     () => Console.WriteLine("OnCompleted: LineReader"));
 
-            receiverDisposable.Dispose();
+            observerDisposable.Dispose();
 
             cts.Cancel();
         }

@@ -8,12 +8,12 @@ using JetBlack.Examples.RxSocket;
 
 namespace JetBlack.Examples.RxSocketServer
 {
-    class Program
+    internal class Program
     {
         public static void Main(string[] args)
         {
             string[] splitArgs = null;
-            if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
+            if (args.Length != 1 || (splitArgs = args[0].Split(new[] {':'}, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
                 Console.WriteLine("usage: EchoServer <hostname>:<port>");
                 Console.WriteLine("example:");
@@ -21,21 +21,22 @@ namespace JetBlack.Examples.RxSocketServer
                 Environment.Exit(-1);
             }
 
-            var address = IPAddress.Parse(splitArgs[0]);
-            var port = int.Parse(splitArgs[1]);
+            var endpoint = new IPEndPoint(IPAddress.Parse(splitArgs[0]), int.Parse(splitArgs[1]));
 
             var cts = new CancellationTokenSource();
 
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Bind(new IPEndPoint(address, port));
+            var listener = endpoint.ToListenerObservable(10);
 
-            var listener = socket.ToListener(10);
-
-            listener.SubscribeOn(TaskPoolScheduler.Default).Subscribe(client =>
-            {
-                var clientSubject = client.ToSenderReceiver(1024, SocketFlags.None);
-                clientSubject.SubscribeOn(TaskPoolScheduler.Default).Subscribe(clientSubject, cts.Token);
-            }, cts.Token);
+            listener
+                .SubscribeOn(TaskPoolScheduler.Default)
+                .Subscribe(
+                    client =>
+                        client.ToClientObservable(1024, SocketFlags.None)
+                            .SubscribeOn(TaskPoolScheduler.Default)
+                            .Subscribe(client.ToClientObserver(1024, SocketFlags.None), cts.Token),
+                    error => Console.WriteLine("Error: " + error.Message),
+                    () => Console.WriteLine("OnCompleted"),
+                    cts.Token);
 
             Console.WriteLine("Press <ENTER> to quit");
             Console.ReadLine();
