@@ -59,6 +59,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxSocketC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxSocketServer", "JetBlack.Examples.RxSocketServer\JetBlack.Examples.RxSocketServer.csproj", "{70E37D11-D7ED-478F-962E-D39598EB6B71}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxTcp", "JetBlack.Examples.RxTcp\JetBlack.Examples.RxTcp.csproj", "{72975282-C280-4697-B5C4-D0EDB57E3262}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxTcpClient", "JetBlack.Examples.RxTcpClient\JetBlack.Examples.RxTcpClient.csproj", "{85C8AA97-69B3-4AEF-BAD5-358394ED15DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxTcpServer", "JetBlack.Examples.RxTcpServer\JetBlack.Examples.RxTcpServer.csproj", "{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -177,6 +183,18 @@ Global
 		{70E37D11-D7ED-478F-962E-D39598EB6B71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70E37D11-D7ED-478F-962E-D39598EB6B71}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70E37D11-D7ED-478F-962E-D39598EB6B71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72975282-C280-4697-B5C4-D0EDB57E3262}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72975282-C280-4697-B5C4-D0EDB57E3262}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72975282-C280-4697-B5C4-D0EDB57E3262}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72975282-C280-4697-B5C4-D0EDB57E3262}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85C8AA97-69B3-4AEF-BAD5-358394ED15DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85C8AA97-69B3-4AEF-BAD5-358394ED15DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85C8AA97-69B3-4AEF-BAD5-358394ED15DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85C8AA97-69B3-4AEF-BAD5-358394ED15DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
