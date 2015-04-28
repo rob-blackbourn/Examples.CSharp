@@ -63,7 +63,7 @@ namespace JetBlack.Examples.RxTcp
                         if (await stream.ReadBytesCompletelyAsync(buffer, length, token) != length)
                             break;
 
-                        observer.OnNext(new ManagedBuffer(buffer, length, bufferManager));
+                        observer.OnNext(new DisposableBuffer(buffer, length, Disposable.Create(() => bufferManager.ReturnBuffer(buffer))));
                     }
 
                     observer.OnCompleted();
