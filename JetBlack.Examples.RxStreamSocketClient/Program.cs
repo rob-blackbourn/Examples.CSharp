@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.ServiceModel.Channels;
 using System.Text;
@@ -46,7 +47,7 @@ namespace JetBlack.Examples.RxStreamSocketClient
                     line =>
                     {
                         var writeBuffer = Encoding.UTF8.GetBytes(line);
-                        frameClientSubject.OnNext(new ManagedBuffer(writeBuffer, writeBuffer.Length, null));
+                        frameClientSubject.OnNext(new DisposableBuffer(writeBuffer, writeBuffer.Length, Disposable.Empty));
                     },
                     error => Console.WriteLine("Error: " + error.Message),
                     () => Console.WriteLine("OnCompleted: LineReader"));

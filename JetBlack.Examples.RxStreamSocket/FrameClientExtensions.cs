@@ -10,25 +10,25 @@ namespace JetBlack.Examples.RxStreamSocket
 {
     public static class FrameClientExtensions
     {
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this IPEndPoint endpoint, BufferManager bufferManager, CancellationToken token)
+        public static ISubject<DisposableBuffer, DisposableBuffer> ToFrameClientSubject(this IPEndPoint endpoint, BufferManager bufferManager, CancellationToken token)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(endpoint);
             return socket.ToFrameClientSubject(bufferManager, token);
         }
 
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this Socket socket, BufferManager bufferManager, CancellationToken token)
+        public static ISubject<DisposableBuffer, DisposableBuffer> ToFrameClientSubject(this Socket socket, BufferManager bufferManager, CancellationToken token)
         {
             var stream = new NetworkStream(socket, FileAccess.ReadWrite);
             return Subject.Create(stream.ToFrameStreamObserver(token), stream.ToFrameStreamObservable(bufferManager));
         }
 
-        public static IObservable<ManagedBuffer> ToFrameClientObservable(this Socket socket, BufferManager bufferManager)
+        public static IObservable<DisposableBuffer> ToFrameClientObservable(this Socket socket, BufferManager bufferManager)
         {
             return new NetworkStream(socket, FileAccess.Read).ToFrameStreamObservable(bufferManager);
         }
 
-        public static IObserver<ManagedBuffer> ToFrameClientObserver(this Socket socket, CancellationToken token)
+        public static IObserver<DisposableBuffer> ToFrameClientObserver(this Socket socket, CancellationToken token)
         {
             return new NetworkStream(socket, FileAccess.Write).ToFrameStreamObserver(token);
         }

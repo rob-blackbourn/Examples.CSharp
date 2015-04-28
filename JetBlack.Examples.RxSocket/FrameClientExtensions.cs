@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.ServiceModel.Channels;
@@ -11,21 +12,21 @@ namespace JetBlack.Examples.RxSocket
 {
     public static class FrameClientExtensions
     {
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this IPEndPoint endpoint, SocketFlags socketFlags, BufferManager bufferManager, CancellationToken token)
+        public static ISubject<DisposableBuffer, DisposableBuffer> ToFrameClientSubject(this IPEndPoint endpoint, SocketFlags socketFlags, BufferManager bufferManager, CancellationToken token)
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(endpoint);
             return socket.ToFrameClientSubject(socketFlags, bufferManager, token);
         }
 
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this Socket socket, SocketFlags socketFlags, BufferManager bufferManager, CancellationToken token)
+        public static ISubject<DisposableBuffer, DisposableBuffer> ToFrameClientSubject(this Socket socket, SocketFlags socketFlags, BufferManager bufferManager, CancellationToken token)
         {
             return Subject.Create(socket.ToFrameClientObserver(socketFlags, token), socket.ToFrameClientObservable(socketFlags, bufferManager));
         }
 
-        public static IObservable<ManagedBuffer> ToFrameClientObservable(this Socket socket, SocketFlags socketFlags, BufferManager bufferManager)
+        public static IObservable<DisposableBuffer> ToFrameClientObservable(this Socket socket, SocketFlags socketFlags, BufferManager bufferManager)
         {
-            return Observable.Create<ManagedBuffer>(async (observer, token) =>
+            return Observable.Create<DisposableBuffer>(async (observer, token) =>
             {
                 var headerBuffer = new byte[sizeof(int)];
 
@@ -41,7 +42,7 @@ namespace JetBlack.Examples.RxSocket
                         if (await socket.ReceiveCompletelyAsync(buffer, length, socketFlags, token) != length)
                             break;
 
-                        observer.OnNext(new ManagedBuffer(buffer, length, bufferManager));
+                        observer.OnNext(new DisposableBuffer(buffer, length, Disposable.Create(() => bufferManager.ReturnBuffer(buffer))));
                     }
 
                     observer.OnCompleted();
@@ -55,9 +56,9 @@ namespace JetBlack.Examples.RxSocket
             });
         }
 
-        public static IObserver<ManagedBuffer> ToFrameClientObserver(this Socket socket, SocketFlags socketFlags, CancellationToken token)
+        public static IObserver<DisposableBuffer> ToFrameClientObserver(this Socket socket, SocketFlags socketFlags, CancellationToken token)
         {
-            return Observer.Create<ManagedBuffer>(async managedBuffer =>
+            return Observer.Create<DisposableBuffer>(async managedBuffer =>
             {
                 await socket.SendCompletelyAsync(BitConverter.GetBytes(managedBuffer.Length), sizeof(int), socketFlags, token);
                 await socket.SendCompletelyAsync(managedBuffer.Bytes, managedBuffer.Length, socketFlags, token);
