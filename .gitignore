@@ -70,3 +70,9 @@
 /JetBlack.Examples.RxTcpClient/obj/Debug
 /JetBlack.Examples.RxTcpServer/bin/Debug
 /JetBlack.Examples.RxTcpServer/obj/Debug
+/JetBlack.Examples.RxStreamSocket/bin/Debug
+/JetBlack.Examples.RxStreamSocket/obj/Debug
+/JetBlack.Examples.RxStreamSocketClient/bin/Debug
+/JetBlack.Examples.RxStreamSocketClient/obj/Debug
+/JetBlack.Examples.RxStreamSocketServer/bin/Debug
+/JetBlack.Examples.RxStreamSocketServer/obj/Debug

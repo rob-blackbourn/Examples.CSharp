@@ -5,9 +5,9 @@ using System.Reactive.Linq;
 using System.ServiceModel.Channels;
 using System.Text;
 using System.Threading;
-using JetBlack.Examples.RxTcp;
+using JetBlack.Examples.RxStreamSocket;
 
-namespace JetBlack.Examples.RxTcpClient
+namespace JetBlack.Examples.RxStreamSocketClient
 {
     class Program
     {

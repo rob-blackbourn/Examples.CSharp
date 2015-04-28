@@ -9,14 +9,14 @@ namespace JetBlack.Examples.RxTcp
 {
     public static class FrameClientExtensions
     {
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this IPEndPoint endpoint, SocketFlags socketFlags, BufferManager bufferManager, CancellationToken token)
+        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this IPEndPoint endpoint, BufferManager bufferManager, CancellationToken token)
         {
             var client = new TcpClient();
             client.Connect(endpoint);
-            return client.ToFrameClientSubject(socketFlags, bufferManager, token);
+            return client.ToFrameClientSubject(bufferManager, token);
         }
 
-        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this TcpClient client, SocketFlags socketFlags, BufferManager bufferManager, CancellationToken token)
+        public static ISubject<ManagedBuffer, ManagedBuffer> ToFrameClientSubject(this TcpClient client, BufferManager bufferManager, CancellationToken token)
         {
             return Subject.Create(client.ToFrameClientObserver(token), client.ToFrameClientObservable(bufferManager));
         }

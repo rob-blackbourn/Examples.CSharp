@@ -65,6 +65,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxTcpClie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxTcpServer", "JetBlack.Examples.RxTcpServer\JetBlack.Examples.RxTcpServer.csproj", "{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxStreamSocket", "JetBlack.Examples.RxStreamSocket\JetBlack.Examples.RxStreamSocket.csproj", "{A26CBB70-23D2-46F8-87A5-C3E4BF608AFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxStreamSocketClient", "JetBlack.Examples.RxStreamSocketClient\JetBlack.Examples.RxStreamSocketClient.csproj", "{9BC12990-FBCB-4E06-A192-4463FE12029B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxStreamSocketServer", "JetBlack.Examples.RxStreamSocketServer\JetBlack.Examples.RxStreamSocketServer.csproj", "{C531D40D-F2EC-4506-8DE6-B20662BCF6CD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -195,6 +201,18 @@ Global
 		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDD0E7B1-7CF4-4365-BBC3-AC456B6A3B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A26CBB70-23D2-46F8-87A5-C3E4BF608AFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A26CBB70-23D2-46F8-87A5-C3E4BF608AFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A26CBB70-23D2-46F8-87A5-C3E4BF608AFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A26CBB70-23D2-46F8-87A5-C3E4BF608AFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BC12990-FBCB-4E06-A192-4463FE12029B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BC12990-FBCB-4E06-A192-4463FE12029B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BC12990-FBCB-4E06-A192-4463FE12029B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BC12990-FBCB-4E06-A192-4463FE12029B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C531D40D-F2EC-4506-8DE6-B20662BCF6CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C531D40D-F2EC-4506-8DE6-B20662BCF6CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C531D40D-F2EC-4506-8DE6-B20662BCF6CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C531D40D-F2EC-4506-8DE6-B20662BCF6CD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
