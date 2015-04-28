@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.ServiceModel.Channels;
 using System.Threading;
@@ -44,9 +45,9 @@ namespace JetBlack.Examples.RxTcp
             });
         }
 
-        public static IObservable<ManagedBuffer> ToFrameStreamObservable(this Stream stream, BufferManager bufferManager)
+        public static IObservable<DisposableBuffer> ToFrameStreamObservable(this Stream stream, BufferManager bufferManager)
         {
-            return Observable.Create<ManagedBuffer>(async (observer, token) =>
+            return Observable.Create<DisposableBuffer>(async (observer, token) =>
             {
                 var headerBuffer = new byte[sizeof(int)];
 
@@ -62,7 +63,7 @@ namespace JetBlack.Examples.RxTcp
                         if (await stream.ReadBytesCompletelyAsync(buffer, length, token) != length)
                             break;
 
-                        observer.OnNext(new ManagedBuffer(buffer, length, bufferManager));
+                        observer.OnNext(new DisposableBuffer(buffer, length, Disposable.Empty));
                     }
 
                     observer.OnCompleted();
@@ -74,9 +75,9 @@ namespace JetBlack.Examples.RxTcp
             });
         }
 
-        public static IObserver<ManagedBuffer> ToFrameStreamObserver(this Stream stream, CancellationToken token)
+        public static IObserver<DisposableBuffer> ToFrameStreamObserver(this Stream stream, CancellationToken token)
         {
-            return Observer.Create<ManagedBuffer>(async managedBuffer =>
+            return Observer.Create<DisposableBuffer>(async managedBuffer =>
             {
                 await stream.WriteAsync(BitConverter.GetBytes(managedBuffer.Length), 0, sizeof(int), token);
                 await stream.WriteAsync(managedBuffer.Bytes, 0, managedBuffer.Length, token);

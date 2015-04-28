@@ -54,6 +54,7 @@
   <ItemGroup>
     <Compile Include="Buffer.cs" />
     <Compile Include="ClientExtensions.cs" />
+    <Compile Include="DisposableBuffer.cs" />
     <Compile Include="FrameClientExtensions.cs" />
     <Compile Include="ListenerExtensions.cs" />
     <Compile Include="ManagedBuffer.cs" />

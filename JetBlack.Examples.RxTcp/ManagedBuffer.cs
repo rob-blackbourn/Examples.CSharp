@@ -1,29 +1,21 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using System.ServiceModel.Channels;
-using System.Threading;
 
 namespace JetBlack.Examples.RxTcp
 {
-    public class ManagedBuffer : Buffer, IDisposable
+    public class ManagedBuffer : DisposableBuffer
     {
-        BufferManager _bufferManager;
-
         public ManagedBuffer(byte[] bytes, int length, BufferManager bufferManager)
-            : base(bytes, length)
+            : base(bytes, length, Disposable.Create(() => bufferManager.ReturnBuffer(bytes)))
         {
-            _bufferManager = bufferManager;
+            if (bufferManager == null)
+                throw new ArgumentNullException("bufferManager");
         }
 
         ~ManagedBuffer()
         {
             Dispose();
-        }
-
-        public void Dispose()
-        {
-            var bufferManager = Interlocked.CompareExchange(ref _bufferManager, null, _bufferManager);
-            if (bufferManager != null && Bytes != null)
-                bufferManager.ReturnBuffer(Bytes);
         }
     }
 }

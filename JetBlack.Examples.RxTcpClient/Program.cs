@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Reactive.Concurrency;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.ServiceModel.Channels;
 using System.Text;
@@ -33,10 +34,10 @@ namespace JetBlack.Examples.RxTcpClient
                 frameClientSubject
                     .SubscribeOn(TaskPoolScheduler.Default)
                     .Subscribe(
-                        managedBuffer =>
+                        disposableBuffer =>
                         {
-                            Console.WriteLine("Read: " + Encoding.UTF8.GetString(managedBuffer.Bytes, 0, managedBuffer.Length));
-                            managedBuffer.Dispose();
+                            Console.WriteLine("Read: " + Encoding.UTF8.GetString(disposableBuffer.Bytes, 0, disposableBuffer.Length));
+                            disposableBuffer.Dispose();
                         },
                         error => Console.WriteLine("Error: " + error.Message),
                         () => Console.WriteLine("OnCompleted: FrameReceiver"));
@@ -46,7 +47,7 @@ namespace JetBlack.Examples.RxTcpClient
                     line =>
                     {
                         var writeBuffer = Encoding.UTF8.GetBytes(line);
-                        frameClientSubject.OnNext(new ManagedBuffer(writeBuffer, writeBuffer.Length, null));
+                        frameClientSubject.OnNext(new DisposableBuffer(writeBuffer, writeBuffer.Length, Disposable.Empty));
                     },
                     error => Console.WriteLine("Error: " + error.Message),
                     () => Console.WriteLine("OnCompleted: LineReader"));
