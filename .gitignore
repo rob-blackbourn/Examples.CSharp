@@ -76,3 +76,9 @@
 /JetBlack.Examples.RxStreamSocketClient/obj/Debug
 /JetBlack.Examples.RxStreamSocketServer/bin/Debug
 /JetBlack.Examples.RxStreamSocketServer/obj/Debug
+/JetBlack.Examples.SelectSocket/bin/Debug
+/JetBlack.Examples.SelectSocket/obj/Debug
+/JetBlack.Examples.SelectSocketClient/bin/Debug
+/JetBlack.Examples.SelectSocketClient/obj/Debug
+/JetBlack.Examples.SelectSocketServer/bin/Debug
+/JetBlack.Examples.SelectSocketServer/obj/Debug
