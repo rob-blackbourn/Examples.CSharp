@@ -18,7 +18,7 @@ namespace JetBlack.Examples.RxSocket
         {
             return Observable.Create<Socket>(async (observer, token) =>
             {
-                socket.Listen(10);
+                socket.Listen(backlog);
 
                 try
                 {
