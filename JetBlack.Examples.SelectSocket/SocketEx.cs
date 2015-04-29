@@ -4,7 +4,7 @@ using System.Net.Sockets;
 
 namespace JetBlack.Examples.SelectSocket
 {
-    public static class SocketExtensions
+    public static class SocketEx
     {
         public static bool Send(this Socket socket, SocketFlags socketFlags, BufferState state)
         {
