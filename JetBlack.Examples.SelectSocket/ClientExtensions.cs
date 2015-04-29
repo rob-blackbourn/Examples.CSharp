@@ -28,8 +28,9 @@ namespace JetBlack.Examples.SelectSocket
                     }
                     catch (Exception error)
                     {
-                        if (!error.IsWouldBlock())
-                            observer.OnError(error);
+                        if (error.IsWouldBlock())
+                            return;
+                        observer.OnError(error);
                     }
                 });
 

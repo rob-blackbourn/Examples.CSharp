@@ -13,7 +13,6 @@ namespace JetBlack.Examples.SelectSocket
         private readonly IDictionary<Socket, Action<Socket>> _readables = new Dictionary<Socket, Action<Socket>>();
         private readonly IDictionary<Socket, Queue<Action<Socket>>> _writeables = new Dictionary<Socket, Queue<Action<Socket>>>();
         private readonly IDictionary<Socket, Action<Socket>> _errorables = new Dictionary<Socket, Action<Socket>>();
-        private readonly ManualResetEvent _waitEvent = new ManualResetEvent(false);
         private readonly Socket _reader, _writer;
 
         public Selector()
@@ -45,8 +44,6 @@ namespace JetBlack.Examples.SelectSocket
 
                 if (socket != _reader)
                     InterruptSelect();
-
-                _waitEvent.Set();
             }
         }
 
@@ -71,9 +68,6 @@ namespace JetBlack.Examples.SelectSocket
                     default:
                         throw new ArgumentOutOfRangeException("mode");
                 }
-
-                if (_readables.Count == 0 && _writeables.Count == 0 && _errorables.Count == 0)
-                    _waitEvent.Reset();
             }
         }
 
@@ -84,12 +78,9 @@ namespace JetBlack.Examples.SelectSocket
 
         public void Start(int microSeconds, CancellationToken token)
         {
-
             while (!token.IsCancellationRequested)
             {
                 List<Socket> checkRead, checkWrite, checkError;
-
-                _waitEvent.WaitOne();
 
                 lock (_gate)
                 {
@@ -103,9 +94,12 @@ namespace JetBlack.Examples.SelectSocket
 
                 Socket.Select(checkRead, checkWrite, checkError, microSeconds);
 
-                CollectSockets(checkRead, _readables).ForEach(pair => pair.Value(pair.Key));
-                CollectSockets(checkWrite, _writeables).ForEach(pair => pair.Value(pair.Key));
-                CollectSockets(checkError, _errorables).ForEach(pair => pair.Value(pair.Key));
+                if (!token.IsCancellationRequested)
+                {
+                    CollectSockets(checkRead, _readables).ForEach(pair => pair.Value(pair.Key));
+                    CollectSockets(checkWrite, _writeables).ForEach(pair => pair.Value(pair.Key));
+                    CollectSockets(checkError, _errorables).ForEach(pair => pair.Value(pair.Key));
+                }
             }
         }
 
