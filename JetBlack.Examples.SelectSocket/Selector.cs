@@ -7,10 +7,29 @@ namespace JetBlack.Examples.SelectSocket
     public class Selector
     {
         private readonly Selectable _selectable = new Selectable();
+        private readonly Socket _reader, _writer;
+        private readonly byte[] _readerBuffer = new byte[1024];
+        private readonly byte[] _writeBuffer = { 0 };
+
+        public Selector()
+        {
+            SocketEx.MakeSocketPair(out _reader, out _writer);
+            AddCallback(SelectMode.SelectRead, _reader, _ => _reader.Receive(_readerBuffer));
+        }
 
         public void AddCallback(SelectMode mode, Socket socket, Action<Socket> callback)
         {
             _selectable.AddCallback(mode, socket, callback);
+
+            // If we have changed the selectable sockets interup the select to wait on the new sockets.
+            if (socket != _reader)
+                InterruptSelect();
+        }
+
+        private void InterruptSelect()
+        {
+            // Sending a byte to the writer wakes up the select loop.
+            _writer.Send(_writeBuffer);
         }
 
         public void RemoveCallback(SelectMode mode, Socket socket)

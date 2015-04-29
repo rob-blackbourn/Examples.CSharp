@@ -11,15 +11,6 @@ namespace JetBlack.Examples.SelectSocket
         private readonly IDictionary<Socket, Action<Socket>> _readCallbacks = new Dictionary<Socket, Action<Socket>>();
         private readonly IDictionary<Socket, Queue<Action<Socket>>> _writeCallbacks = new Dictionary<Socket, Queue<Action<Socket>>>();
         private readonly IDictionary<Socket, Action<Socket>> _errorCallbacks = new Dictionary<Socket, Action<Socket>>();
-        private readonly Socket _reader, _writer;
-        private readonly byte[] _readerBuffer = new byte[1024];
-        private readonly byte[] _writeBuffer = { 0 };
-
-        public Selectable()
-        {
-            SocketEx.MakeSocketPair(out _reader, out _writer);
-            AddCallback(SelectMode.SelectRead, _reader, _ => _reader.Receive(_readerBuffer));
-        }
 
         public void AddCallback(SelectMode mode, Socket socket, Action<Socket> callback)
         {
@@ -43,9 +34,6 @@ namespace JetBlack.Examples.SelectSocket
                         throw new ArgumentOutOfRangeException("mode");
                 }
 
-                // If we have changed the selectable sockets interup the select to wait on the new sockets.
-                if (socket != _reader)
-                    InterruptSelect();
             }
         }
 
@@ -71,12 +59,6 @@ namespace JetBlack.Examples.SelectSocket
                         throw new ArgumentOutOfRangeException("mode");
                 }
             }
-        }
-
-        private void InterruptSelect()
-        {
-            // Sending a byte to the writer wakes up the select loop.
-            _writer.Send(_writeBuffer);
         }
 
         private List<SocketCallback> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Action<Socket>> dictionary)
@@ -131,13 +113,9 @@ namespace JetBlack.Examples.SelectSocket
 
         public void InvokeCallbacks(Checkable checkable)
         {
-            if (checkable.IsEmpty)
-                return;
-
             CollectSockets(checkable.CheckRead, _readCallbacks).ForEach(pair => pair.Callback(pair.Socket));
             CollectSockets(checkable.CheckWrite, _writeCallbacks).ForEach(pair => pair.Callback(pair.Socket));
             CollectSockets(checkable.CheckError, _errorCallbacks).ForEach(pair => pair.Callback(pair.Socket));
-
         }
 
         struct SocketCallback
