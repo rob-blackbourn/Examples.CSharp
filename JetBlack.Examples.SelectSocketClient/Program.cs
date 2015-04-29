@@ -18,6 +18,8 @@ namespace JetBlack.Examples.SelectSocketClient
     {
         static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure();
+
             string[] splitArgs = null;
             if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
@@ -31,7 +33,9 @@ namespace JetBlack.Examples.SelectSocketClient
 
             var cts = new CancellationTokenSource();
             var bufferManager = BufferManager.CreateBufferManager(2 << 16, 2 << 8);
+
             var selector = new Selector();
+            Task.Factory.StartNew(() => selector.Start(60000000, cts.Token), cts.Token);
 
             var frameClientSubject = endpoint.ToFrameClientSubject(SocketFlags.None, bufferManager, selector, cts.Token);
 
@@ -56,8 +60,6 @@ namespace JetBlack.Examples.SelectSocketClient
                     },
                     error => Console.WriteLine("Error: " + error.Message),
                     () => Console.WriteLine("OnCompleted: LineReader"));
-
-            Task.Factory.StartNew(() => selector.Start(1000000, cts.Token), cts.Token);
 
             observerDisposable.Dispose();
 

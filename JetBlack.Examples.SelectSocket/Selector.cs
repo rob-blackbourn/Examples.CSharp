@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -9,12 +10,26 @@ namespace JetBlack.Examples.SelectSocket
     public class Selector
     {
         private readonly object _gate = new object();
-        private readonly IDictionary<Socket, Action> _readables = new Dictionary<Socket, Action>();
-        private readonly IDictionary<Socket, Queue<Action>> _writeables = new Dictionary<Socket, Queue<Action>>();
-        private readonly IDictionary<Socket, Action> _errorables = new Dictionary<Socket, Action>();
+        private readonly IDictionary<Socket, Action<Socket>> _readables = new Dictionary<Socket, Action<Socket>>();
+        private readonly IDictionary<Socket, Queue<Action<Socket>>> _writeables = new Dictionary<Socket, Queue<Action<Socket>>>();
+        private readonly IDictionary<Socket, Action<Socket>> _errorables = new Dictionary<Socket, Action<Socket>>();
         private readonly ManualResetEvent _waitEvent = new ManualResetEvent(false);
+        private readonly Socket _reader, _writer;
 
-        public void Add(SelectMode mode, Socket socket, Action action)
+        public Selector()
+        {
+            var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            listener.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+            listener.Listen(1);
+            _reader = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            _reader.Connect(listener.LocalEndPoint);
+            _writer = listener.Accept();
+            listener.Close();
+            Add(SelectMode.SelectRead, _reader, _ => _reader.Receive(new byte[1024]));
+        }
+
+        public void Add(SelectMode mode, Socket socket, Action<Socket> action)
         {
             lock (_gate)
             {
@@ -24,9 +39,9 @@ namespace JetBlack.Examples.SelectSocket
                         _readables.Add(socket, action);
                         break;
                     case SelectMode.SelectWrite:
-                        Queue<Action> actions;
+                        Queue<Action<Socket>> actions;
                         if (!_writeables.TryGetValue(socket, out actions))
-                            _writeables.Add(socket, actions = new Queue<Action>());
+                            _writeables.Add(socket, actions = new Queue<Action<Socket>>());
                         actions.Enqueue(action);
                         break;
                     case SelectMode.SelectError:
@@ -35,6 +50,9 @@ namespace JetBlack.Examples.SelectSocket
                     default:
                         throw new ArgumentOutOfRangeException("mode");
                 }
+
+                if (socket != _reader)
+                    InterruptSelect();
 
                 _waitEvent.Set();
             }
@@ -67,8 +85,14 @@ namespace JetBlack.Examples.SelectSocket
             }
         }
 
+        private void InterruptSelect()
+        {
+            _writer.Send(new byte[] {0});
+        }
+
         public void Start(int microSeconds, CancellationToken token)
         {
+
             while (!token.IsCancellationRequested)
             {
                 List<Socket> checkRead, checkWrite, checkError;
@@ -82,17 +106,20 @@ namespace JetBlack.Examples.SelectSocket
                     checkError = _errorables.Count == 0 ? null : _errorables.Keys.ToList();
                 }
 
+                if ((checkRead == null || checkRead.Count == 0) && (checkWrite == null || checkWrite.Count == 0) && (checkError == null || checkError.Count == 0))
+                    continue;
+
                 Socket.Select(checkRead, checkWrite, checkError, microSeconds);
 
-                CollectSockets(checkRead, _readables).ForEach(action => action());
-                CollectSockets(checkWrite, _writeables).ForEach(action => action());
-                CollectSockets(checkError, _errorables).ForEach(action => action());
+                CollectSockets(checkRead, _readables).ForEach(pair => pair.Value(pair.Key));
+                CollectSockets(checkWrite, _writeables).ForEach(pair => pair.Value(pair.Key));
+                CollectSockets(checkError, _errorables).ForEach(pair => pair.Value(pair.Key));
             }
         }
 
-        private List<Action> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Action> dictionary)
+        private List<KeyValuePair<Socket,Action<Socket>>> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Action<Socket>> dictionary)
         {
-            var actions = new List<Action>();
+            var actions = new List<KeyValuePair<Socket,Action<Socket>>>();
 
             if (sockets != null)
             {
@@ -100,9 +127,9 @@ namespace JetBlack.Examples.SelectSocket
                 {
                     foreach (var socket in sockets)
                     {
-                        Action action;
+                        Action<Socket> action;
                         if (dictionary.TryGetValue(socket, out action))
-                            actions.Add(action);
+                            actions.Add(new KeyValuePair<Socket, Action<Socket>>(socket, action));
                     }
                 }
             }
@@ -110,9 +137,9 @@ namespace JetBlack.Examples.SelectSocket
             return actions;
         }
 
-        private List<Action> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Queue<Action>> dictionary)
+        private List<KeyValuePair<Socket,Action<Socket>>> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Queue<Action<Socket>>> dictionary)
         {
-            var actions = new List<Action>();
+            var actions = new List<KeyValuePair<Socket,Action<Socket>>>();
 
             if (sockets != null)
             {
@@ -120,9 +147,9 @@ namespace JetBlack.Examples.SelectSocket
                 {
                     foreach (var socket in sockets)
                     {
-                        Queue<Action> queue;
+                        Queue<Action<Socket>> queue;
                         if (dictionary.TryGetValue(socket, out queue))
-                            actions.Add(queue.Peek());
+                            actions.Add(new KeyValuePair<Socket, Action<Socket>>(socket, queue.Peek()));
                     }
                 }
             }

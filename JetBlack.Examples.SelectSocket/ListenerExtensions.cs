@@ -21,7 +21,12 @@ namespace JetBlack.Examples.SelectSocket
             {
                 socket.Listen(backlog);
 
-                selector.Add(SelectMode.SelectRead, socket, () => observer.OnNext(socket.Accept()));
+                selector.Add(SelectMode.SelectRead, socket, _ =>
+                {
+                    var accepted = socket.Accept();
+                    accepted.Blocking = false;
+                    observer.OnNext(accepted);
+                });
 
                 return Disposable.Create(() => selector.Remove(SelectMode.SelectRead, socket));
             });

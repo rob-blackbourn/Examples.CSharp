@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Reactive;
 using System.Reactive.Disposables;
@@ -15,7 +16,7 @@ namespace JetBlack.Examples.SelectSocket
             {
                 var buffer = new byte[size];
 
-                selector.Add(SelectMode.SelectRead, socket, () =>
+                selector.Add(SelectMode.SelectRead, socket, _ =>
                 {
                     try
                     {
@@ -27,7 +28,8 @@ namespace JetBlack.Examples.SelectSocket
                     }
                     catch (Exception error)
                     {
-                        observer.OnError(error);
+                        if (!error.IsWouldBlock())
+                            observer.OnError(error);
                     }
                 });
 
@@ -42,16 +44,24 @@ namespace JetBlack.Examples.SelectSocket
                 {
                     var state = new BufferState(buffer.Bytes, 0, buffer.Length);
 
+                    if (socket.Poll(0, SelectMode.SelectWrite) && socket.Send(socketFlags, state))
+                        return;
+
                     var waitEvent = new AutoResetEvent(false);
                     var waitHandles = new[] {token.WaitHandle, waitEvent};
 
                     selector.Add(SelectMode.SelectWrite, socket,
-                        () =>
+                        _ =>
                         {
-                            state.Advance(socket.Send(state.Bytes, state.Offset, state.Length, socketFlags));
-                            if (state.Length == 0)
-                                selector.Remove(SelectMode.SelectWrite, socket);
-                            waitEvent.Set();
+                            try
+                            {
+                                if (socket.Send(socketFlags, state))
+                                    selector.Remove(SelectMode.SelectWrite, socket);
+                            }
+                            finally
+                            {
+                                waitEvent.Set();
+                            }
                         });
 
                     while (state.Length > 0)

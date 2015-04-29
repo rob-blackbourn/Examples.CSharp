@@ -13,6 +13,8 @@ namespace JetBlack.Examples.SelectSocketServer
     {
         static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure();
+
             string[] splitArgs = null;
             if (args.Length != 1 || (splitArgs = args[0].Split(new[] { ':' }, StringSplitOptions.RemoveEmptyEntries)).Length != 2)
             {
@@ -40,7 +42,7 @@ namespace JetBlack.Examples.SelectSocketServer
                     () => Console.WriteLine("OnCompleted"),
                     cts.Token);
 
-            Task.Factory.StartNew(() => selector.Start(1000000, cts.Token), cts.Token);
+            Task.Factory.StartNew(() => selector.Start(60000000, cts.Token), cts.Token);
 
             Console.WriteLine("Press <ENTER> to quit");
             Console.ReadLine();
