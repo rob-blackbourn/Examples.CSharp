@@ -21,14 +21,14 @@ namespace JetBlack.Examples.SelectSocket
             {
                 socket.Listen(backlog);
 
-                selector.Add(SelectMode.SelectRead, socket, _ =>
+                selector.AddCallback(SelectMode.SelectRead, socket, _ =>
                 {
                     var accepted = socket.Accept();
                     accepted.Blocking = false;
                     observer.OnNext(accepted);
                 });
 
-                return Disposable.Create(() => selector.Remove(SelectMode.SelectRead, socket));
+                return Disposable.Create(() => selector.RemoveCallback(SelectMode.SelectRead, socket));
             });
         }
     }

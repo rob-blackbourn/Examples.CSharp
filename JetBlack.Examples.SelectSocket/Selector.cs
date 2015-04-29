@@ -10,60 +10,64 @@ namespace JetBlack.Examples.SelectSocket
     public class Selector
     {
         private readonly object _gate = new object();
-        private readonly IDictionary<Socket, Action<Socket>> _readables = new Dictionary<Socket, Action<Socket>>();
-        private readonly IDictionary<Socket, Queue<Action<Socket>>> _writeables = new Dictionary<Socket, Queue<Action<Socket>>>();
-        private readonly IDictionary<Socket, Action<Socket>> _errorables = new Dictionary<Socket, Action<Socket>>();
+        private readonly IDictionary<Socket, Action<Socket>> _readCallbacks = new Dictionary<Socket, Action<Socket>>();
+        private readonly IDictionary<Socket, Queue<Action<Socket>>> _writeCallbacks = new Dictionary<Socket, Queue<Action<Socket>>>();
+        private readonly IDictionary<Socket, Action<Socket>> _errorCallbacks = new Dictionary<Socket, Action<Socket>>();
         private readonly Socket _reader, _writer;
+        private readonly byte[] _readerBuffer = new byte[1024];
+        private readonly byte[] _writeBuffer = {0};
 
         public Selector()
         {
             MakeSocketPair(out _reader, out _writer);
-            Add(SelectMode.SelectRead, _reader, _ => _reader.Receive(new byte[1024]));
+            AddCallback(SelectMode.SelectRead, _reader, _ => _reader.Receive(_readerBuffer));
         }
-        public void Add(SelectMode mode, Socket socket, Action<Socket> action)
+
+        public void AddCallback(SelectMode mode, Socket socket, Action<Socket> callback)
         {
             lock (_gate)
             {
                 switch (mode)
                 {
                     case SelectMode.SelectRead:
-                        _readables.Add(socket, action);
+                        _readCallbacks.Add(socket, callback);
                         break;
                     case SelectMode.SelectWrite:
-                        Queue<Action<Socket>> actions;
-                        if (!_writeables.TryGetValue(socket, out actions))
-                            _writeables.Add(socket, actions = new Queue<Action<Socket>>());
-                        actions.Enqueue(action);
+                        Queue<Action<Socket>> callbackQueue;
+                        if (!_writeCallbacks.TryGetValue(socket, out callbackQueue))
+                            _writeCallbacks.Add(socket, callbackQueue = new Queue<Action<Socket>>());
+                        callbackQueue.Enqueue(callback);
                         break;
                     case SelectMode.SelectError:
-                        _errorables.Add(socket, action);
+                        _errorCallbacks.Add(socket, callback);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException("mode");
                 }
 
+                // If we have changed the selectable sockets interup the select to wait on the new sockets.
                 if (socket != _reader)
                     InterruptSelect();
             }
         }
 
-        public void Remove(SelectMode mode, Socket socket)
+        public void RemoveCallback(SelectMode mode, Socket socket)
         {
             lock (_gate)
             {
                 switch (mode)
                 {
                     case SelectMode.SelectRead:
-                        _readables.Remove(socket);
+                        _readCallbacks.Remove(socket);
                         break;
                     case SelectMode.SelectWrite:
-                        var queue = _writeables[socket];
-                        queue.Dequeue();
-                        if (queue.Count == 0)
-                            _writeables.Remove(socket);
+                        var callbackQueue = _writeCallbacks[socket];
+                        callbackQueue.Dequeue();
+                        if (callbackQueue.Count == 0)
+                            _writeCallbacks.Remove(socket);
                         break;
                     case SelectMode.SelectError:
-                        _errorables.Remove(socket);
+                        _errorCallbacks.Remove(socket);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException("mode");
@@ -73,7 +77,8 @@ namespace JetBlack.Examples.SelectSocket
 
         private void InterruptSelect()
         {
-            _writer.Send(new byte[] {0});
+            // Sending a byte to the writer wakes up the select loop.
+            _writer.Send(_writeBuffer);
         }
 
         public void Start(int microSeconds, CancellationToken token)
@@ -84,9 +89,10 @@ namespace JetBlack.Examples.SelectSocket
 
                 lock (_gate)
                 {
-                    checkRead = _readables.Count == 0 ? null : _readables.Keys.ToList();
-                    checkWrite = _writeables.Count == 0 ? null : _writeables.Keys.ToList();
-                    checkError = _errorables.Count == 0 ? null : _errorables.Keys.ToList();
+                    // When there are no sockets we cannot pass an empty list, we must pass null.
+                    checkRead = _readCallbacks.Count == 0 ? null : _readCallbacks.Keys.ToList();
+                    checkWrite = _writeCallbacks.Count == 0 ? null : _writeCallbacks.Keys.ToList();
+                    checkError = _errorCallbacks.Count == 0 ? null : _errorCallbacks.Keys.ToList();
                 }
 
                 if ((checkRead == null || checkRead.Count == 0) && (checkWrite == null || checkWrite.Count == 0) && (checkError == null || checkError.Count == 0))
@@ -94,53 +100,65 @@ namespace JetBlack.Examples.SelectSocket
 
                 Socket.Select(checkRead, checkWrite, checkError, microSeconds);
 
-                if (!token.IsCancellationRequested)
-                {
-                    CollectSockets(checkRead, _readables).ForEach(pair => pair.Value(pair.Key));
-                    CollectSockets(checkWrite, _writeables).ForEach(pair => pair.Value(pair.Key));
-                    CollectSockets(checkError, _errorables).ForEach(pair => pair.Value(pair.Key));
-                }
+                // The select may have blocked for some time, so check the cancellationtoken again.
+                if (token.IsCancellationRequested)
+                    return;
+
+                CollectSockets(checkRead, _readCallbacks).ForEach(pair => pair.Callback(pair.Socket));
+                CollectSockets(checkWrite, _writeCallbacks).ForEach(pair => pair.Callback(pair.Socket));
+                CollectSockets(checkError, _errorCallbacks).ForEach(pair => pair.Callback(pair.Socket));
             }
         }
 
-        private List<KeyValuePair<Socket,Action<Socket>>> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Action<Socket>> dictionary)
+        private List<SocketCallback> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Action<Socket>> dictionary)
         {
-            var actions = new List<KeyValuePair<Socket,Action<Socket>>>();
+            var actions = new List<SocketCallback>();
 
-            if (sockets != null)
+            if (sockets == null) return actions;
+
+            lock (_gate)
             {
-                lock (_gate)
+                foreach (var socket in sockets)
                 {
-                    foreach (var socket in sockets)
-                    {
-                        Action<Socket> action;
-                        if (dictionary.TryGetValue(socket, out action))
-                            actions.Add(new KeyValuePair<Socket, Action<Socket>>(socket, action));
-                    }
+                    Action<Socket> action;
+                    if (dictionary.TryGetValue(socket, out action))
+                        actions.Add(new SocketCallback(socket, action));
                 }
             }
 
             return actions;
         }
 
-        private List<KeyValuePair<Socket,Action<Socket>>> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Queue<Action<Socket>>> dictionary)
+        private List<SocketCallback> CollectSockets(IEnumerable<Socket> sockets, IDictionary<Socket, Queue<Action<Socket>>> dictionary)
         {
-            var actions = new List<KeyValuePair<Socket,Action<Socket>>>();
+            var actions = new List<SocketCallback>();
 
-            if (sockets != null)
+            if (sockets == null) return actions;
+
+            lock (_gate)
             {
-                lock (_gate)
+                foreach (var socket in sockets)
                 {
-                    foreach (var socket in sockets)
-                    {
-                        Queue<Action<Socket>> queue;
-                        if (dictionary.TryGetValue(socket, out queue))
-                            actions.Add(new KeyValuePair<Socket, Action<Socket>>(socket, queue.Peek()));
-                    }
+                    Queue<Action<Socket>> queue;
+                    if (dictionary.TryGetValue(socket, out queue))
+                        actions.Add(new SocketCallback(socket, queue.Peek()));
                 }
             }
 
             return actions;
+        }
+
+        struct SocketCallback
+        {
+            public readonly Socket Socket;
+            public readonly Action<Socket> Callback;
+
+            public SocketCallback(Socket socket, Action<Socket> callback)
+                : this()
+            {
+                Socket = socket;
+                Callback = callback;
+            }
         }
 
         private static void MakeSocketPair(out Socket local, out Socket remote)

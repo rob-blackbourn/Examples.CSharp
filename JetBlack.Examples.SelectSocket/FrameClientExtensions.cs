@@ -45,7 +45,7 @@ namespace JetBlack.Examples.SelectSocket
                 var waitEvent = new AutoResetEvent(false);
                 var waitHandles = new[] {token.WaitHandle, waitEvent};
 
-                selector.Add(SelectMode.SelectWrite, socket,
+                selector.AddCallback(SelectMode.SelectWrite, socket,
                     _ =>
                     {
                         try
@@ -54,7 +54,7 @@ namespace JetBlack.Examples.SelectSocket
                                 socket.Send(socketFlags, headerState);
 
                             if (headerState.Length == 0 && socket.Send(socketFlags, contentState))
-                                selector.Remove(SelectMode.SelectWrite, socket);
+                                selector.RemoveCallback(SelectMode.SelectWrite, socket);
                         }
                         finally
                         {
@@ -79,7 +79,7 @@ namespace JetBlack.Examples.SelectSocket
                 var headerState = new BufferState(new byte[sizeof (int)], 0, sizeof (int));
                 var contentState = new BufferState(null, 0, -1);
 
-                selector.Add(SelectMode.SelectRead, socket, _ =>
+                selector.AddCallback(SelectMode.SelectRead, socket, _ =>
                 {
                     try
                     {
@@ -119,7 +119,7 @@ namespace JetBlack.Examples.SelectSocket
                     }
                 });
 
-                return Disposable.Create(() => selector.Remove(SelectMode.SelectRead, socket));
+                return Disposable.Create(() => selector.RemoveCallback(SelectMode.SelectRead, socket));
             });
         }
     }

@@ -16,7 +16,7 @@ namespace JetBlack.Examples.SelectSocket
             {
                 var buffer = new byte[size];
 
-                selector.Add(SelectMode.SelectRead, socket, _ =>
+                selector.AddCallback(SelectMode.SelectRead, socket, _ =>
                 {
                     try
                     {
@@ -34,7 +34,7 @@ namespace JetBlack.Examples.SelectSocket
                     }
                 });
 
-                return Disposable.Create(() => selector.Remove(SelectMode.SelectRead, socket));
+                return Disposable.Create(() => selector.RemoveCallback(SelectMode.SelectRead, socket));
             });
         }
 
@@ -45,19 +45,20 @@ namespace JetBlack.Examples.SelectSocket
                 {
                     var state = new BufferState(buffer.Bytes, 0, buffer.Length);
 
+                    // Try to write as much as possible without registering a callback.
                     if (socket.Poll(0, SelectMode.SelectWrite) && socket.Send(socketFlags, state))
                         return;
 
                     var waitEvent = new AutoResetEvent(false);
                     var waitHandles = new[] {token.WaitHandle, waitEvent};
 
-                    selector.Add(SelectMode.SelectWrite, socket,
+                    selector.AddCallback(SelectMode.SelectWrite, socket,
                         _ =>
                         {
                             try
                             {
                                 if (socket.Send(socketFlags, state))
-                                    selector.Remove(SelectMode.SelectWrite, socket);
+                                    selector.RemoveCallback(SelectMode.SelectWrite, socket);
                             }
                             finally
                             {
