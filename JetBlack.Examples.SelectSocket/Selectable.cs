@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Net.Sockets;
 
 namespace JetBlack.Examples.SelectSocket
@@ -18,7 +17,7 @@ namespace JetBlack.Examples.SelectSocket
 
         public Selectable()
         {
-            MakeSocketPair(out _reader, out _writer);
+            SocketEx.MakeSocketPair(out _reader, out _writer);
             AddCallback(SelectMode.SelectRead, _reader, _ => _reader.Receive(_readerBuffer));
         }
 
@@ -152,18 +151,6 @@ namespace JetBlack.Examples.SelectSocket
                 Socket = socket;
                 Callback = callback;
             }
-        }
-
-        private static void MakeSocketPair(out Socket local, out Socket remote)
-        {
-            var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            listener.Bind(new IPEndPoint(IPAddress.Loopback, 0));
-            listener.Listen(1);
-            local = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            local.Connect(listener.LocalEndPoint);
-            remote = listener.Accept();
-            listener.Close();
         }
     }
 }
