@@ -18,17 +18,9 @@ namespace JetBlack.Examples.SelectSocket
 
         public Selector()
         {
-            var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            listener.Bind(new IPEndPoint(IPAddress.Loopback, 0));
-            listener.Listen(1);
-            _reader = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _reader.Connect(listener.LocalEndPoint);
-            _writer = listener.Accept();
-            listener.Close();
+            MakeSocketPair(out _reader, out _writer);
             Add(SelectMode.SelectRead, _reader, _ => _reader.Receive(new byte[1024]));
         }
-
         public void Add(SelectMode mode, Socket socket, Action<Socket> action)
         {
             lock (_gate)
@@ -155,6 +147,18 @@ namespace JetBlack.Examples.SelectSocket
             }
 
             return actions;
+        }
+
+        private static void MakeSocketPair(out Socket local, out Socket remote)
+        {
+            var listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            listener.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+            listener.Bind(new IPEndPoint(IPAddress.Loopback, 0));
+            listener.Listen(1);
+            local = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            local.Connect(listener.LocalEndPoint);
+            remote = listener.Accept();
+            listener.Close();
         }
     }
 }
