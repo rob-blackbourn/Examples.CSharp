@@ -57,11 +57,13 @@
   <ItemGroup>
     <Compile Include="Buffer.cs" />
     <Compile Include="BufferState.cs" />
+    <Compile Include="Checkable.cs" />
     <Compile Include="ClientExtensions.cs" />
     <Compile Include="DisposableBuffer.cs" />
     <Compile Include="FrameClientExtensions.cs" />
     <Compile Include="ListenerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Selectable.cs" />
     <Compile Include="Selector.cs" />
     <Compile Include="SocketExtensions.cs" />
     <Compile Include="TextReaderExtensions.cs" />
