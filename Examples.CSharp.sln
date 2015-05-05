@@ -77,6 +77,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.SelectSoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.SelectSocketServer", "JetBlack.Examples.SelectSocketServer\JetBlack.Examples.SelectSocketServer.csproj", "{6855A574-8B86-4896-A249-70DD5EFD7829}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JetBlack.Examples.RxMongoDB", "JetBlack.Examples.RxMongoDB\JetBlack.Examples.RxMongoDB.csproj", "{43B2664E-0945-4F01-BCA6-8E6293A13C83}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -231,6 +233,10 @@ Global
 		{6855A574-8B86-4896-A249-70DD5EFD7829}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6855A574-8B86-4896-A249-70DD5EFD7829}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6855A574-8B86-4896-A249-70DD5EFD7829}.Release|Any CPU.Build.0 = Release|Any CPU
+		{43B2664E-0945-4F01-BCA6-8E6293A13C83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{43B2664E-0945-4F01-BCA6-8E6293A13C83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{43B2664E-0945-4F01-BCA6-8E6293A13C83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{43B2664E-0945-4F01-BCA6-8E6293A13C83}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
