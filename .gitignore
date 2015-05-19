@@ -82,3 +82,5 @@
 /JetBlack.Examples.SelectSocketClient/obj/Debug
 /JetBlack.Examples.SelectSocketServer/bin/Debug
 /JetBlack.Examples.SelectSocketServer/obj/Debug
+/JetBlack.Examples.RxMongoDB/bin/Debug
+/JetBlack.Examples.RxMongoDB/obj/Debug
